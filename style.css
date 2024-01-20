@@ -35,22 +35,28 @@ main {
 }
 
 .menu-heading {
-    font-size: 25px;
-    color: white;
+    font-size: 20px;
+    color: rgb(255, 217, 4);
     text-align: center;
     font-weight: 700;
+}
+.menu-heading:hover{
+    background-color: #FF2424;
+    /* height: 40px; */
+    border-radius: 20px;
+    /* width: 90px; */
 }
 
 .slogan {
     color: #FF2424;
     text-align: center;
-    font-size: 18px;
+    font-size: 17px;
     /* margin: 20px; */
     /* margin-bottom: 20px; */
 }
 
 .quick-links {
-    font-size: 21px;
+    font-size: 20px;
     color: white;
     text-align: center;
 }
@@ -60,7 +66,7 @@ main {
     font-weight: 600;
     font-size: 18px;
     margin: 20px;
-    padding: 20px;
+    /* padding: 20px; */
 
 }
 
@@ -69,7 +75,7 @@ main {
     font-weight: 600;
     font-size: 18px;
     margin: 20px;
-    padding: 25px;
+    /* padding: 25px; */
 
 }
 
