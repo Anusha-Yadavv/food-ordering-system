@@ -7,15 +7,19 @@ function showMenu() {
   deliciousImg.style.display = "none";
 }
 
-function getMenu() {
-  return fetch(menuUrl)
-    .then((response) => response.json())
-    .then((data) => {
-      displayMenuItems(data);
-    })
-    .catch((error) => {
-      console.error("Error fetching menu:", error);
-    });
+async function getMenu() {
+  const loader = document.getElementById("loader");
+  loader.style.display = "block";
+
+  try {
+    const response = await fetch(menuUrl);
+    const data = await response.json();
+    displayMenuItems(data);
+  } catch (error) {
+    console.error("Error fetching menu:", error);
+  } finally {
+    loader.style.display = "none";
+  }
 }
 
 function displayMenuItems(menuItems) {
@@ -58,24 +62,21 @@ function displayMenuItems(menuItems) {
   });
 }
 
-window.onload = function () {
-
-    setTimeout(()=>{
-        alert("Please click on 'Menu' to see more items")
-
-    },3000)
-  getMenu();
+window.onload = async function () {
+  setTimeout(() => {
+    alert("Please click on 'Menu' to see more items");
+  }, 3000);
+  await getMenu();
 };
 
 function showHome() {
   window.location.href = "index.html";
 }
 
-function takeOrder() {
+async function takeOrder() {
   return new Promise((resolve) => {
     setTimeout(() => {
       const randomBurgers = chooseRandomBurgers(3);
-
       resolve(randomBurgers);
     }, 2500);
   });
@@ -103,18 +104,35 @@ function chooseRandomBurgers(numBurgers) {
   return randomBurgers;
 }
 
-document.addEventListener("click", function (event) {
+document.addEventListener("click", async function (event) {
   if (event.target.tagName === "IMG" && event.target.alt === "plus icon") {
-    takeOrder().then((selectedBurgers) => {
-      console.log(
-        "Order resolved with the following burgers:",
-        selectedBurgers
-      );
-    });
+    try {
+      const selectedBurgers = await takeOrder();
+      console.log("Order resolved with the following burgers:", selectedBurgers);
+
+      const orderPrepStatus = await orderPrep();
+      console.log("Order preparation status:", orderPrepStatus);
+
+      if (orderPrepStatus.order_status) {
+        const payStatus = await payOrder();
+        console.log("Payment status:", payStatus);
+
+        if (payStatus.paid) {
+          thankyouFnc();
+        } else {
+          throw new Error("Payment failed");
+        }
+      } else {
+        throw new Error("Order preparation failed");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error processing order. Please try again.");
+    }
   }
 });
 
-function orderPrep() {
+async function orderPrep() {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({ order_status: true, paid: false });
@@ -122,7 +140,7 @@ function orderPrep() {
   });
 }
 
-function payOrder() {
+async function payOrder() {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({ order_status: true, paid: true });
@@ -133,37 +151,3 @@ function payOrder() {
 function thankyouFnc() {
   alert("Thank you for eating with us today!");
 }
-
-document.addEventListener("click", function (event) {
-  if (event.target.tagName === "IMG" && event.target.alt === "plus icon") {
-    takeOrder()
-      .then((selectedBurgers) => {
-        console.log(
-          "Order resolved with the following burgers:",
-          selectedBurgers
-        );
-        return selectedBurgers;
-      })
-      .then(orderPrep)
-      .then((orderPrepStatus) => {
-        console.log("Order preparation status:", orderPrepStatus);
-        if (orderPrepStatus.order_status) {
-          return payOrder();
-        } else {
-          throw new Error("Order preparation failed");
-        }
-      })
-      .then((payStatus) => {
-        console.log("Payment status:", payStatus);
-        if (payStatus.paid) {
-          thankyouFnc();
-        } else {
-          throw new Error("Payment failed");
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("Error processing order. Please try again.");
-      });
-  }
-});
